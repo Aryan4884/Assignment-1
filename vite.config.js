@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   build: {
     outDir: 'dist', 
-  },  // <-- Missing comma was here
+  },  
 
   server: {
     host: "0.0.0.0",  // Allow external connections
@@ -16,5 +16,6 @@ export default defineConfig({
   preview: {
     host: "0.0.0.0",
     port: process.env.PORT || 4173,
+    allowedHosts: ["assignment-01-1iff.onrender.com"] // <-- Add this
   },
 })
