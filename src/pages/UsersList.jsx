@@ -29,6 +29,25 @@ function UsersList() {
     navigate("/"); // Redirect to login page
   };
 
+  // Delete Function
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this user?")) return;
+
+    try {
+      const response = await axios.delete(`https://reqres.in/api/users/${id}`);
+
+      if (response.status === 204) { // HTTP 204 means successful deletion
+        alert("User deleted successfully! (Note: API does not persist deletions)");
+        setUsers(users.filter(user => user.id !== id)); // Remove user from state
+      } else {
+        alert("Failed to delete user. Try again later.");
+      }
+    } catch (err) {
+      console.error("Error deleting user:", err);
+      alert("Error deleting user. Check console for details.");
+    }
+  };
+
   // Client-side search filter
   const filteredUsers = users.filter(user =>
     `${user.first_name} ${user.last_name}`.toLowerCase().includes(searchQuery.toLowerCase())
@@ -83,7 +102,10 @@ function UsersList() {
                     >
                       Edit
                     </button>
-                    <button className="bg-red-500 px-4 py-1 text-white rounded hover:bg-red-600">
+                    <button 
+                      onClick={() => handleDelete(user.id)} 
+                      className="bg-red-500 px-4 py-1 text-white rounded hover:bg-red-600"
+                    >
                       Delete
                     </button>
                   </td>
