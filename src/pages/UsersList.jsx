@@ -4,6 +4,7 @@ import axios from "axios";
 
 function UsersList() {
   const [users, setUsers] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const navigate = useNavigate();
@@ -18,34 +19,45 @@ function UsersList() {
       setUsers(response.data.data);
       setTotalPages(response.data.total_pages);
     } catch (err) {
-      console.error("Error fetching users:", err);
+      console.error("Error fetching users", err);
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this user?")) return;
-
-    try {
-      const response = await axios.delete(`https://reqres.in/api/users/${id}`);
-      console.log("Delete response:", response.status);
-
-      if (response.status === 204) {  // HTTP 204 means successful deletion
-        alert("User deleted successfully! (Note: API does not persist deletions)");
-        setUsers(users.filter(user => user.id !== id)); // Remove user from state
-      } else {
-        alert("Failed to delete user. Try again later.");
-      }
-    } catch (err) {
-      console.error("Error deleting user:", err);
-      alert("Error deleting user. Check console for details.");
-    }
+  // Logout Function
+  const handleLogout = () => {
+    localStorage.removeItem("token"); // Remove token from storage
+    navigate("/"); // Redirect to login page
   };
+
+  // Client-side search filter
+  const filteredUsers = users.filter(user =>
+    `${user.first_name} ${user.last_name}`.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
-    <div className="min-h-screen w-full flex justify-center bg-gray-100">
-      <div className="w-full p-8">
-        <h1 className="text-4xl font-semibold text-center mb-6 text-gray-800">Users List</h1>
+    <div className="min-h-screen w-full flex flex-col items-center bg-gray-100">
+      <div className="w-full p-8 max-w-4xl">
+        {/* Header with Logout Button */}
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-4xl font-semibold text-gray-800">Users List</h1>
+          <button 
+            onClick={handleLogout} 
+            className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600"
+          >
+            Logout
+          </button>
+        </div>
 
+        {/* Search Bar */}
+        <input 
+          type="text" 
+          placeholder="Search users..." 
+          className="w-full p-3 border border-gray-300 rounded mb-4"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+
+        {/* Users Table */}
         <div className="overflow-x-auto">
           <table className="w-full bg-white border-collapse border shadow-md">
             <thead>
@@ -57,7 +69,7 @@ function UsersList() {
               </tr>
             </thead>
             <tbody>
-              {users.map(user => (
+              {filteredUsers.map(user => (
                 <tr key={user.id} className="text-center hover:bg-gray-100 transition">
                   <td className="border p-2">
                     <img src={user.avatar} alt="avatar" className="w-12 h-12 rounded-full mx-auto" />
@@ -65,10 +77,13 @@ function UsersList() {
                   <td className="border p-2 text-black">{user.first_name} {user.last_name}</td>
                   <td className="border p-2 text-black">{user.email}</td>
                   <td className="border p-2">
-                    <button onClick={() => navigate(`/edit/${user.id}`)} className="bg-yellow-500 px-4 py-1 text-white rounded mr-2 hover:bg-yellow-600">
+                    <button 
+                      onClick={() => navigate(`/edit/${user.id}`)} 
+                      className="bg-yellow-500 px-4 py-1 text-white rounded mr-2 hover:bg-yellow-600"
+                    >
                       Edit
                     </button>
-                    <button onClick={() => handleDelete(user.id)} className="bg-red-500 px-4 py-1 text-white rounded hover:bg-red-600">
+                    <button className="bg-red-500 px-4 py-1 text-white rounded hover:bg-red-600">
                       Delete
                     </button>
                   </td>
