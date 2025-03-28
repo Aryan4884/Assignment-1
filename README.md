@@ -2,7 +2,7 @@
 
 A **React-based User Management System** using the **Reqres API**. Users can log in, view a paginated list of users, edit user details, and delete users.  
 
-🚀 **Live Demo:** [(https://assignment-01-1iff.onrender.com/users)]  
+🚀 **Live Demo:** [https://assignment-01-1iff.onrender.com/users]  
 
 ---
 
