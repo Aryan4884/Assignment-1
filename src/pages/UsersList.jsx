@@ -4,6 +4,7 @@ import axios from "axios";
 
 function UsersList() {
   const [users, setUsers] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const navigate = useNavigate();
@@ -22,21 +23,25 @@ function UsersList() {
     }
   };
 
-  const handleDelete = async (id) => {
-    try {
-      await axios.delete(`https://reqres.in/api/users/${id}`);
-      alert("User deleted successfully! (Note: API does not persist deletions)");
-      setUsers(users.filter(user => user.id !== id)); // Remove from local state
-    } catch (err) {
-      console.error("Error deleting user:", err);
-      alert("Failed to delete user. Try again later.");
-    }
-  };
+  // **Client-side search filter**
+  const filteredUsers = users.filter(user =>
+    `${user.first_name} ${user.last_name}`.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <div className="min-h-screen w-full flex justify-center bg-gray-100">
       <div className="w-full p-8">
         <h1 className="text-4xl font-semibold text-center mb-6 text-gray-800">Users List</h1>
+
+        {/* Search Bar */}
+        <input 
+          type="text" 
+          placeholder="Search users..." 
+          className="w-full p-3 border border-gray-300 rounded mb-4"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+
         <div className="overflow-x-auto">
           <table className="w-full bg-white border-collapse border shadow-md">
             <thead>
@@ -48,7 +53,7 @@ function UsersList() {
               </tr>
             </thead>
             <tbody>
-              {users.map(user => (
+              {filteredUsers.map(user => (
                 <tr key={user.id} className="text-center hover:bg-gray-100 transition">
                   <td className="border p-2">
                     <img src={user.avatar} alt="avatar" className="w-12 h-12 rounded-full mx-auto" />
@@ -59,7 +64,7 @@ function UsersList() {
                     <button onClick={() => navigate(`/edit/${user.id}`)} className="bg-yellow-500 px-4 py-1 text-white rounded mr-2 hover:bg-yellow-600">
                       Edit
                     </button>
-                    <button onClick={() => handleDelete(user.id)} className="bg-red-500 px-4 py-1 text-white rounded hover:bg-red-600">
+                    <button className="bg-red-500 px-4 py-1 text-white rounded hover:bg-red-600">
                       Delete
                     </button>
                   </td>
